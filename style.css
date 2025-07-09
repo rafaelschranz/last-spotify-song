@@ -1,0 +1,167 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #1db954, #191414);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+}
+
+.card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    padding: 30px;
+    text-align: center;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h1 {
+    color: #191414;
+    margin-bottom: 30px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #1db954;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error {
+    color: #ff4444;
+    padding: 20px;
+    background: #ffebee;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.song-info {
+    margin-bottom: 30px;
+}
+
+.album-cover {
+    margin-bottom: 20px;
+}
+
+.album-cover img {
+    width: 200px;
+    height: 200px;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    object-fit: cover;
+}
+
+.song-details h2 {
+    color: #191414;
+    font-size: 20px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.song-details p {
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.timestamp {
+    color: #999 !important;
+    font-size: 14px !important;
+    margin-top: 10px;
+}
+
+.controls {
+    margin-top: 20px;
+}
+
+#refresh-btn {
+    background: #1db954;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3);
+}
+
+#refresh-btn:hover {
+    background: #1aa34a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(29, 185, 84, 0.4);
+}
+
+#refresh-btn:active {
+    transform: translateY(0);
+}
+
+#refresh-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+    .container {
+        max-width: 320px;
+    }
+    
+    .card {
+        padding: 20px;
+    }
+    
+    .album-cover img {
+        width: 150px;
+        height: 150px;
+    }
+    
+    h1 {
+        font-size: 20px;
+    }
+    
+    .song-details h2 {
+        font-size: 18px;
+    }
+}

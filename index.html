@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Last Spotify Song</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Last Spotify Song</h1>
+            
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Loading...</p>
+            </div>
+            
+            <div id="error" class="error hidden">
+                <p></p>
+            </div>
+            
+            <div id="song-info" class="song-info hidden">
+                <div class="album-cover">
+                    <img id="album-image" src="" alt="Album cover">
+                </div>
+                <div class="song-details">
+                    <h2 id="song-title"></h2>
+                    <p id="artist-name"></p>
+                    <p id="album-title"></p>
+                    <p id="timestamp" class="timestamp"></p>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button id="refresh-btn">Refresh</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
