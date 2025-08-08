@@ -27,6 +27,17 @@ jobs:
           echo "${{ secrets.SPOTIFY_CACHE }}" > .spotify_cache
       - name: Export last played song
         run: python export_last_song_github_pages.py
+        continue-on-error: true
+      - name: Check if export succeeded
+        run: |
+          if [ ! -f docs/last_song.json ]; then
+            echo "❌ Export failed - no JSON file created"
+            echo "This might happen if the refresh token expired (after ~6 months)"
+            echo "Please re-authenticate and update the SPOTIFY_CACHE secret"
+            exit 1
+          else
+            echo "✅ Export successful"
+          fi
       - name: Commit and push changes
         run: |
           git config user.name github-actions

@@ -15,14 +15,65 @@ def load_spotify_token():
         with open('.spotify_cache', 'r') as f:
             cache = json.load(f)
             access_token = cache.get('access_token')
+            refresh_token = cache.get('refresh_token')
             expires_in = cache.get('expires_in', 3600)
             created_at = cache.get('created_at', time.time())
+            
+            # Check if token is expired
             if time.time() >= created_at + expires_in:
-                print("❌ Spotify token expired. Please re-authenticate.")
-                return None
+                print("🔄 Access token expired, refreshing...")
+                new_token = refresh_access_token(refresh_token)
+                if new_token:
+                    return new_token
+                else:
+                    print("❌ Failed to refresh token. Please re-authenticate.")
+                    return None
             return access_token
     except Exception as e:
         print(f"❌ Could not load Spotify token: {e}")
+        return None
+
+def refresh_access_token(refresh_token):
+    """Refresh the access token using the refresh token"""
+    load_dotenv()
+    CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
+    CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
+    
+    auth_string = f"{CLIENT_ID}:{CLIENT_SECRET}"
+    auth_bytes = auth_string.encode('ascii')
+    auth_b64 = base64.b64encode(auth_bytes).decode('ascii')
+    
+    headers = {
+        'Authorization': f'Basic {auth_b64}',
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    
+    data = {
+        'grant_type': 'refresh_token',
+        'refresh_token': refresh_token
+    }
+    
+    response = requests.post('https://accounts.spotify.com/api/token', headers=headers, data=data)
+    
+    if response.status_code == 200:
+        token_data = response.json()
+        
+        # Update the cache file with new token
+        cache_data = {
+            'access_token': token_data['access_token'],
+            'refresh_token': refresh_token,  # Keep the same refresh token
+            'expires_in': token_data['expires_in'],
+            'created_at': time.time(),
+            'scope': 'user-read-recently-played'
+        }
+        
+        with open('.spotify_cache', 'w') as f:
+            json.dump(cache_data, f, indent=2)
+        
+        print("✅ Token refreshed successfully!")
+        return token_data['access_token']
+    else:
+        print(f"❌ Token refresh failed: {response.status_code}")
         return None
 
 def get_last_played_song(access_token):
