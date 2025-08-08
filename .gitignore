@@ -4,8 +4,12 @@
 # Environment variables
 .env
 
-# Output files
+# Output files (except docs for GitHub Pages)
 last_song.json
+
+# Allow docs folder for GitHub Pages
+!docs/
+!docs/last_song.json
 
 # Python
 __pycache__/
