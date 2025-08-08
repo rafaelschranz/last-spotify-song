@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Last Spotify Song</title>
+    <style>
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 222.2 84% 4.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 222.2 84% 4.9%;
+            --popover: 0 0% 100%;
+            --popover-foreground: 222.2 84% 4.9%;
+            --primary: 221.2 83.2% 53.3%;
+            --primary-foreground: 210 40% 98%;
+            --secondary: 210 40% 96%;
+            --secondary-foreground: 222.2 84% 4.9%;
+            --muted: 210 40% 96%;
+            --muted-foreground: 215.4 16.3% 46.9%;
+            --accent: 210 40% 96%;
+            --accent-foreground: 222.2 84% 4.9%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 210 40% 98%;
+            --border: 214.3 31.8% 91.4%;
+            --input: 214.3 31.8% 91.4%;
+            --ring: 221.2 83.2% 53.3%;
+            --radius: 0.5rem;
+        }
+
+        .dark {
+            --background: 222.2 84% 4.9%;
+            --foreground: 210 40% 98%;
+            --card: 222.2 84% 4.9%;
+            --card-foreground: 210 40% 98%;
+            --popover: 222.2 84% 4.9%;
+            --popover-foreground: 210 40% 98%;
+            --primary: 217.2 91.2% 59.8%;
+            --primary-foreground: 222.2 84% 4.9%;
+            --secondary: 217.2 32.6% 17.5%;
+            --secondary-foreground: 210 40% 98%;
+            --muted: 217.2 32.6% 17.5%;
+            --muted-foreground: 215 20.2% 65.1%;
+            --accent: 217.2 32.6% 17.5%;
+            --accent-foreground: 210 40% 98%;
+            --destructive: 0 62.8% 30.6%;
+            --destructive-foreground: 210 40% 98%;
+            --border: 217.2 32.6% 17.5%;
+            --input: 217.2 32.6% 17.5%;
+            --ring: 224.3 76.3% 94.1%;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: hsl(var(--background));
+            color: hsl(var(--foreground));
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        .header p {
+            color: hsl(var(--muted-foreground));
+            font-size: 1.125rem;
+        }
+
+        .card {
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: calc(var(--radius) * 2);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            padding: 2rem;
+            max-width: 28rem;
+            margin: 0 auto;
+        }
+
+        .song-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .cover-image {
+            width: 12rem;
+            height: 12rem;
+            border-radius: var(--radius);
+            object-fit: cover;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
+        }
+
+        .song-info {
+            text-align: center;
+        }
+
+        .song-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            line-height: 1.3;
+        }
+
+        .artist-name {
+            color: hsl(var(--muted-foreground));
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .album-name {
+            color: hsl(var(--muted-foreground));
+            font-size: 0.875rem;
+            font-style: italic;
+        }
+
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .badge {
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            padding: 0.25rem 0.75rem;
+            border-radius: calc(var(--radius) * 4);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: hsl(var(--muted));
+            border-radius: var(--radius);
+        }
+
+        .detail-item {
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: hsl(var(--muted-foreground));
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            gap: 0.5rem;
+        }
+
+        .button-primary {
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+        }
+
+        .button-primary:hover {
+            background: hsl(var(--primary) / 0.9);
+        }
+
+        .button-outline {
+            border: 1px solid hsl(var(--border));
+            background: transparent;
+            color: hsl(var(--foreground));
+        }
+
+        .button-outline:hover {
+            background: hsl(var(--accent));
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            gap: 1rem;
+        }
+
+        .spinner {
+            width: 2rem;
+            height: 2rem;
+            border: 2px solid hsl(var(--border));
+            border-top: 2px solid hsl(var(--primary));
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: hsl(var(--destructive));
+            text-align: center;
+            padding: 1.5rem;
+            background: hsl(var(--destructive) / 0.1);
+            border: 1px solid hsl(var(--destructive) / 0.2);
+            border-radius: var(--radius);
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-top: 1rem;
+            border-radius: var(--radius);
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: hsl(var(--muted-foreground));
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            background: hsl(var(--muted));
+            border-radius: var(--radius);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: hsl(142.1 76.2% 36.3%);
+        }
+        
+        .status-dot.live {
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.static {
+            background-color: hsl(45.4 93.4% 47.5%);
+            animation: none;
+        }
+        
+        .status-dot.disconnected {
+            background-color: hsl(var(--destructive));
+            animation: none;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .update-info {
+            font-size: 0.75rem;
+            color: hsl(var(--muted-foreground));
+            text-align: center;
+            margin-top: 1.5rem;
+            padding: 0.75rem;
+            background: hsl(var(--muted));
+            border-radius: var(--radius);
+        }
+        
+        .update-info div {
+            margin-bottom: 0.25rem;
+        }
+        
+        .update-info div:last-child {
+            margin-bottom: 0;
+        }
+        
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .cover-image {
+                width: 10rem;
+                height: 10rem;
+            }
+            
+            .details-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Last Spotify Song</h1>
+            <p>Your recently played track</p>
+            
+            <div class="status-indicator" id="statusIndicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Connecting...</span>
+            </div>
+        </header>
+
+        <div class="card">
+            <div id="content">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading your last played song...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="button button-outline" onclick="loadSong()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                    <path d="M21 3v5h-5"/>
+                    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                    <path d="M3 21v-5h5"/>
+                </svg>
+                Refresh
+            </button>
+        </div>
+        
+        <div class="update-info">
+            <div id="updateMode">Mode: Checking...</div>
+            <div id="lastUpdate">Last updated: Never</div>
+        </div>
+    </div>
+
+    <script>
+        let isRealTime = false;
+        let lastSongName = '';
+        
+        async function loadSong() {
+            const content = document.getElementById('content');
+            
+            // Show loading
+            content.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading your last played song...</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch('/api/last-song');
+                const data = await response.json();
+
+                if (data.error) {
+                    content.innerHTML = `
+                        <div class="error">
+                            <h3>Error</h3>
+                            <p>${data.error}</p>
+                            <p style="margin-top: 0.75rem; font-size: 0.875rem; opacity: 0.8;">
+                                Run 'python manual_auth.py' for real-time updates.
+                            </p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Check if it's a new song
+                if (data.song_name !== lastSongName) {
+                    lastSongName = data.song_name;
+                    console.log(`🎵 ${isRealTime ? 'New song detected' : 'Song loaded'}: ${data.song_name}`);
+                }
+
+                content.innerHTML = `
+                    <div class="song-content">
+                        <img src="${data.cover_image || 'https://via.placeholder.com/192x192/e5e7eb/6b7280?text=No+Image'}" 
+                             alt="Album Cover" class="cover-image">
+                        
+                        <div class="song-info">
+                            <h2 class="song-title">${data.song_name}</h2>
+                            <p class="artist-name">${data.artist}</p>
+                            <p class="album-name">${data.album}</p>
+                        </div>
+                        
+                        <div class="badges">
+                            ${data.genres.map(genre => `<span class="badge">${genre}</span>`).join('')}
+                        </div>
+
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <div class="detail-label">Duration</div>
+                                <div class="detail-value">${data.duration}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Popularity</div>
+                                <div class="detail-value">${data.popularity}/100</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Released</div>
+                                <div class="detail-value">${data.release_date}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Played At</div>
+                                <div class="detail-value">${new Date(data.played_at).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+
+                        <div class="actions">
+                            <a href="${data.external_url}" target="_blank" class="button button-primary">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 8.586-4.293 4.293a1 1 0 0 1-1.414-1.414L13.172 11H7a1 1 0 1 1 0-2h6.172l-2.293-2.293a1 1 0 0 1 1.414-1.414l4.293 4.293a1 1 0 0 1 0 1.414z"/>
+                                </svg>
+                                Open in Spotify
+                            </a>
+                        </div>
+
+                        ${data.preview_url ? `
+                            <audio controls class="audio-player">
+                                <source src="${data.preview_url}" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        ` : ''}
+                    </div>
+                `;
+
+                // Update last update time
+                updateLastUpdateTime(data.last_updated);
+
+            } catch (error) {
+                content.innerHTML = `
+                    <div class="error">
+                        <h3>Connection Error</h3>
+                        <p>Failed to load song data. Please try again.</p>
+                        <p style="margin-top: 0.75rem; font-size: 0.875rem; opacity: 0.8;">
+                            Error: ${error.message}
+                        </p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const status = await response.json();
+                
+                updateStatus(status.real_time_connected, status.mode);
+                isRealTime = status.real_time_connected;
+                
+            } catch (error) {
+                updateStatus(false, 'disconnected');
+                console.error('Status check failed:', error);
+            }
+        }
+        
+        function updateStatus(connected, mode) {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const updateMode = document.getElementById('updateMode');
+            
+            statusDot.className = 'status-dot';
+            
+            if (connected) {
+                statusDot.classList.add('live');
+                statusText.textContent = 'Live • Auto-updating';
+                updateMode.textContent = 'Mode: Real-time (updates every 30 seconds)';
+            } else if (mode === 'static') {
+                statusDot.classList.add('static');
+                statusText.textContent = 'Static • Manual refresh only';
+                updateMode.textContent = 'Mode: Static (run manual_auth.py for real-time)';
+            } else {
+                statusDot.classList.add('disconnected');
+                statusText.textContent = 'Disconnected';
+                updateMode.textContent = 'Mode: Disconnected';
+            }
+        }
+        
+        function updateLastUpdateTime(timestamp) {
+            const lastUpdate = document.getElementById('lastUpdate');
+            if (timestamp) {
+                const date = new Date(timestamp);
+                lastUpdate.textContent = `Last updated: ${date.toLocaleTimeString()}`;
+            }
+        }
+
+        // Initial load
+        loadSong();
+        checkStatus();
+        
+        // Auto-refresh every 30 seconds if in real-time mode
+        setInterval(() => {
+            if (isRealTime) {
+                loadSong();
+            }
+        }, 30000);
+        
+        // Check status every 10 seconds
+        setInterval(checkStatus, 10000);
+    </script>
+</body>
+</html>
